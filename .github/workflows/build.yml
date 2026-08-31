@@ -1,0 +1,23 @@
+name: Build NoLimits Support helper
+
+on:
+  push:
+    branches: [main, master, "feat/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build release helper
+        run: msbuild MeshCentralAssistant.sln /p:Configuration=Release /p:Platform="Any CPU"
+      - name: Publish unsigned verification artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NoLimits-Support-unsigned
+          path: bin/Release/MeshCentralAssistant.exe
+          if-no-files-found: error

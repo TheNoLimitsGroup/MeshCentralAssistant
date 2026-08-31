@@ -306,12 +306,140 @@ namespace MeshAssistant
         private void MainForm_Load(object sender, EventArgs e)
         {
             Log("MainForm_Load()");
+            ApplyNoLimitsTrustedSurface();
             this.WindowState = FormWindowState.Normal;
             this.StartPosition = FormStartPosition.Manual;
             this.Location = new Point(Screen.PrimaryScreen.WorkingArea.Width - this.Width, Screen.PrimaryScreen.WorkingArea.Height - this.Height);
             this.Visible = startVisible;
             this.Opacity = 1;
             connectToAgent();
+        }
+
+        // Quick Support is deliberately a normal window (ac=3), not a tray
+        // utility. Keep the protocol and existing state bindings intact, but
+        // make the client-facing surface say one clear thing: who is connected,
+        // what that means, and how to end it. This is code rather than a skin so
+        // it survives MeshCentral's .msh custom title/image configuration.
+        private void ApplyNoLimitsTrustedSurface()
+        {
+            Color canvas = Color.FromArgb(13, 11, 19);
+            Color card = Color.FromArgb(18, 16, 28);
+            Color ink = Color.FromArgb(222, 233, 254);
+            Color muted = Color.FromArgb(154, 147, 173);
+            Color faint = Color.FromArgb(148, 131, 165);
+            Color success = Color.FromArgb(79, 209, 161);
+            Color accent = Color.FromArgb(159, 115, 196);
+
+            this.BackColor = canvas;
+            this.ClientSize = new Size(520, 410);
+            this.MinimumSize = this.MaximumSize = this.Size;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+
+            // The stock artwork is a state icon from the old blue dashboard.
+            // Status is now expressed in readable text and a colour-independent
+            // dot, so it cannot compete with the actual session state.
+            mainPictureBox.Visible = false;
+            pictureBoxCustom.Visible = false;
+            requestHelpButton.Visible = false;
+
+            Panel header = new Panel();
+            header.BackColor = card;
+            header.Location = new Point(0, 0);
+            header.Size = new Size(520, 68);
+
+            Label brand = NewSurfaceLabel("NOLIMITS SUPPORT", new Font("Segoe UI", 11, FontStyle.Bold), ink);
+            brand.Location = new Point(28, 20);
+            brand.Size = new Size(300, 24);
+            header.Controls.Add(brand);
+
+            Label eyebrow = NewSurfaceLabel("SECURE QUICK SUPPORT", new Font("Consolas", 7.5f, FontStyle.Regular), faint);
+            eyebrow.Location = new Point(30, 43);
+            eyebrow.Size = new Size(260, 16);
+            header.Controls.Add(eyebrow);
+
+            Panel rule = new Panel();
+            rule.BackColor = accent;
+            rule.Location = new Point(0, 66);
+            rule.Size = new Size(520, 2);
+            header.Controls.Add(rule);
+            this.Controls.Add(header);
+
+            Panel dot = new Panel();
+            dot.BackColor = success;
+            dot.Location = new Point(30, 104);
+            dot.Size = new Size(12, 12);
+            dot.Paint += delegate(object sender, PaintEventArgs e) {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                using (SolidBrush brush = new SolidBrush(success))
+                {
+                    e.Graphics.FillEllipse(brush, 0, 0, 11, 11);
+                }
+            };
+            this.Controls.Add(dot);
+
+            Label heading = NewSurfaceLabel("Connected securely", new Font("Segoe UI", 20, FontStyle.Bold), ink);
+            heading.Location = new Point(54, 91);
+            heading.Size = new Size(410, 38);
+            this.Controls.Add(heading);
+
+            Label explanation = NewSurfaceLabel("A support technician can assist with this computer.", new Font("Segoe UI", 10, FontStyle.Regular), muted);
+            explanation.Location = new Point(30, 138);
+            explanation.Size = new Size(450, 24);
+            this.Controls.Add(explanation);
+
+            Panel session = new Panel();
+            session.BackColor = card;
+            session.Location = new Point(28, 186);
+            session.Size = new Size(464, 90);
+
+            Label sessionLabel = NewSurfaceLabel("SUPPORT SESSION", new Font("Consolas", 7.5f, FontStyle.Regular), faint);
+            sessionLabel.Location = new Point(16, 14);
+            sessionLabel.Size = new Size(180, 16);
+            session.Controls.Add(sessionLabel);
+
+            stateLabel.BackColor = card;
+            stateLabel.ForeColor = ink;
+            stateLabel.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            stateLabel.Location = new Point(16, 34);
+            stateLabel.Size = new Size(420, 24);
+            session.Controls.Add(stateLabel);
+
+            remoteSessionsLabel.BackColor = card;
+            remoteSessionsLabel.ForeColor = muted;
+            remoteSessionsLabel.Font = new Font("Segoe UI", 9, FontStyle.Regular);
+            remoteSessionsLabel.Location = new Point(16, 59);
+            remoteSessionsLabel.Size = new Size(420, 20);
+            session.Controls.Add(remoteSessionsLabel);
+            this.Controls.Add(session);
+
+            Label closure = NewSurfaceLabel("Closing this window ends this support session.", new Font("Segoe UI", 9, FontStyle.Regular), muted);
+            closure.Location = new Point(30, 300);
+            closure.Size = new Size(300, 22);
+            this.Controls.Add(closure);
+
+            Button endSupport = new Button();
+            endSupport.Text = "End support";
+            endSupport.FlatStyle = FlatStyle.Flat;
+            endSupport.FlatAppearance.BorderColor = accent;
+            endSupport.FlatAppearance.BorderSize = 1;
+            endSupport.BackColor = canvas;
+            endSupport.ForeColor = ink;
+            endSupport.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            endSupport.Location = new Point(332, 338);
+            endSupport.Size = new Size(160, 44);
+            endSupport.Click += delegate(object sender, EventArgs e) { this.Close(); };
+            this.Controls.Add(endSupport);
+        }
+
+        private static Label NewSurfaceLabel(string text, Font font, Color color)
+        {
+            Label label = new Label();
+            label.Text = text;
+            label.Font = font;
+            label.ForeColor = color;
+            label.AutoEllipsis = true;
+            return label;
         }
 
         private void Mcagent_onLogEvent(DateTime time, string userid, string msg)
