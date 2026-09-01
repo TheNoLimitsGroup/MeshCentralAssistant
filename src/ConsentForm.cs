@@ -34,6 +34,7 @@ namespace MeshAssistant
             InitializeComponent();
             Translate.TranslateControl(this);
             this.orgtitle = this.Text;
+            ApplyNoLimitsConsentSurface();
         }
 
         public string userid;
@@ -45,6 +46,70 @@ namespace MeshAssistant
         public Image UserImage { set { if (value == null) { mainPictureBox.Image = mainPictureBox.InitialImage; } else { mainPictureBox.Image = value; } } }
 
         public bool AutoAccept { get { return autoConsentCheckBox.Checked; } }
+
+        // Consent is a security decision, not a notification. Keep the existing
+        // protocol callbacks and optional five-minute preference intact, but make
+        // the decision, its consequence and the refusal path equally obvious.
+        private void ApplyNoLimitsConsentSurface()
+        {
+            Color canvas = Color.FromArgb(13, 11, 19);
+            Color card = Color.FromArgb(18, 16, 28);
+            Color ink = Color.FromArgb(222, 233, 254);
+            Color muted = Color.FromArgb(154, 147, 173);
+            Color accent = Color.FromArgb(159, 115, 196);
+
+            BackColor = canvas;
+            ClientSize = new Size(500, 362);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            mainPictureBox.Visible = false;
+
+            mainLabel.Location = new Point(28, 34);
+            mainLabel.Size = new Size(440, 52);
+            mainLabel.Font = new Font("Segoe UI", 16, FontStyle.Bold);
+            mainLabel.ForeColor = ink;
+
+            nameLabel.Location = new Point(28, 96);
+            nameLabel.Size = new Size(440, 26);
+            nameLabel.Font = new Font("Segoe UI", 10, FontStyle.Regular);
+            nameLabel.ForeColor = muted;
+
+            Panel details = new Panel();
+            details.BackColor = card;
+            details.Location = new Point(28, 138);
+            details.Size = new Size(444, 82);
+            Label copy = new Label();
+            copy.Text = "They will be able to view and control your mouse and keyboard. You can end support at any time.";
+            copy.Location = new Point(16, 16);
+            copy.Size = new Size(412, 52);
+            copy.Font = new Font("Segoe UI", 9, FontStyle.Regular);
+            copy.ForeColor = ink;
+            details.Controls.Add(copy);
+            Controls.Add(details);
+
+            autoConsentCheckBox.Location = new Point(28, 237);
+            autoConsentCheckBox.Size = new Size(444, 24);
+            autoConsentCheckBox.ForeColor = muted;
+            autoConsentCheckBox.BackColor = canvas;
+
+            cancelButton.Text = "Decline";
+            cancelButton.FlatStyle = FlatStyle.Flat;
+            cancelButton.FlatAppearance.BorderColor = Color.FromArgb(83, 76, 96);
+            cancelButton.BackColor = canvas;
+            cancelButton.ForeColor = ink;
+            cancelButton.Location = new Point(28, 290);
+            cancelButton.Size = new Size(206, 44);
+
+            okButton.Text = "Allow support";
+            okButton.FlatStyle = FlatStyle.Flat;
+            okButton.FlatAppearance.BorderColor = accent;
+            okButton.BackColor = accent;
+            okButton.ForeColor = Color.White;
+            okButton.Location = new Point(266, 290);
+            okButton.Size = new Size(206, 44);
+            AcceptButton = okButton;
+        }
 
         private void updateInfo()
         {

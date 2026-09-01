@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
@@ -44,6 +45,10 @@ namespace MeshAssistant
             displayedScreen = screen;
             InitializeComponent();
             Translate.TranslateControl(this);
+            BackColor = Color.FromArgb(18, 16, 28);
+            mainLabel.ForeColor = Color.FromArgb(222, 233, 254);
+            pictureBox1.Visible = false;
+            pictureBox2.BackColor = Color.FromArgb(159, 115, 196);
         }
 
         protected override CreateParams CreateParams
@@ -67,8 +72,8 @@ namespace MeshAssistant
 
         private void PrivacyBarForm_Load(object sender, EventArgs e)
         {
-            this.Width = 600;
-            this.Height = 28;
+            this.Width = 640;
+            this.Height = 36;
             this.Left = displayedScreen.WorkingArea.Left + ((displayedScreen.WorkingArea.Width / 2) - (this.Width / 2));
             this.Top = displayedScreen.WorkingArea.Top;
         }
